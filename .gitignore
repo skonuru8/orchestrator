@@ -1,0 +1,45 @@
+# Dependencies
+/node_modules/
+
+# TypeScript build output / caches
+dist/
+build/
+out/
+*.tsbuildinfo
+*.d.ts.map
+*.js.map
+
+# Tests / coverage
+coverage/
+.nyc_output/
+*.lcov
+
+# Vitest cache (if enabled)
+.vitest/
+
+# Environment
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.swp
+*.swo
+*~

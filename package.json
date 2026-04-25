@@ -1,0 +1,25 @@
+{
+    "name": "orchestrator",
+    "version": "1.0.0",
+    "description": "Scheduler + supervisor for the job-hunter pipeline. Runs run-pipeline.ts on cron, prevents overlapping runs, captures failures.",
+    "type": "module",
+    "scripts": {
+      "start":      "npx tsx src/index.ts",
+      "test":       "vitest run",
+      "test:watch": "vitest",
+      "typecheck":  "tsc --noEmit"
+    },
+    "dependencies": {
+      "node-cron": "^3.0.3",
+      "ioredis":   "^5.6.0",
+      "pg":        "^8.13.0"
+    },
+    "devDependencies": {
+      "@types/node":      "^22.0.0",
+      "@types/node-cron": "^3.0.11",
+      "@types/pg":        "^8.11.0",
+      "tsx":              "^4.19.0",
+      "typescript":       "^5.7.0",
+      "vitest":           "^2.1.0"
+    }
+  }
