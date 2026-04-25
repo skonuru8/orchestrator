@@ -22,8 +22,6 @@
 
 import Redis from "ioredis";
 
-const REDIS_URL = process.env.REDIS_URL ?? "redis://localhost:6379";
-
 let _client: Redis | null = null;
 let _connectionFailed = false;
 
@@ -31,7 +29,7 @@ function getClient(): Redis | null {
   if (_connectionFailed) return null;
   if (_client) return _client;
 
-  _client = new Redis(REDIS_URL, {
+  _client = new Redis(process.env.REDIS_URL ?? "redis://localhost:6379", {
     lazyConnect:         true,
     enableReadyCheck:    false,
     maxRetriesPerRequest: 1,
