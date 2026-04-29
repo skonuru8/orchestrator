@@ -6,7 +6,8 @@
  *   Dice daily (Mon–Sat):   0 9,13,17,21 * * 1-6   POSTED_WITHIN=ONE   MAX=50
  *   Dice backfill (Sun):    0 9 * * 0               POSTED_WITHIN=SEVEN MAX=100  TTL=6h
  *   Dice Sun afternoons:    0 13,17,21 * * 0        POSTED_WITHIN=ONE   MAX=50
- *   Jobright (daily):       0 10 * * *              POSTED_WITHIN=ONE   MAX=50
+ *   Jobright API (Mon–Sat): 0 9,13,17,21 * * 1-6    MAX=40
+ *   Jobright API (Sun):     0 13,17,21 * * 0        MAX=40
  *   LinkedIn (daily):       0 14 * * *              (no POSTED_WITHIN)  MAX=30
  *   Ghost reaper:           *\/10 * * * *           sweeps stale runs (every 10 minutes)
  *
@@ -179,16 +180,47 @@ export function registerSchedules(): ScheduledTask[] {
     });
   });
 
-  // ── Jobright (daily, offset from Dice by 1h) ─────────────────────────────
-  schedule("0 10 * * *", "jobright-daily", async () => {
+  // ── Jobright API (Mon–Sat, 4×/day matching Dice cadence) ─────────────────
+  // Replaces the Playwright HTML scraper. The API path:
+  // - Fetches structured JSON instead of scraping JS-rendered SPA
+  // - Synthesizes description_raw from API fields (no separate fetch needed)
+  // - Eliminates ATS 403/empty-body failure class for Jobright source
+  // - Capped at MAX=40 to stay well under Jobright's ~30-40 rate limit
+  schedule("0 9,13,17,21 * * 1-6", "jobright-api-daily", async () => {
     await spawnRun({
-      source:       "jobright",
-      postedWithin: "ONE",
-      max:          50,
+      source:       "jobright_api",
+      postedWithin: "",      // Jobright API doesn't take posted_within
+      max:          40,
       runId:        newRunId(),
       lockTtlSecs:  14_400,
     });
   });
+
+  // ── Jobright API Sunday afternoons ───────────────────────────────────────
+  schedule("0 13,17,21 * * 0", "jobright-api-sunday", async () => {
+    await spawnRun({
+      source:       "jobright_api",
+      postedWithin: "",
+      max:          40,
+      runId:        newRunId(),
+      lockTtlSecs:  14_400,
+    });
+  });
+
+  // ── Jobright HTML scraper (DEPRECATED — kept for fallback) ───────────────
+  // The HTML scraper is preserved as a fallback in case the API session
+  // expires or rate-limits hard. To re-enable: comment the API schedules
+  // above and uncomment this block.
+  //
+  // schedule("0 10 * * *", "jobright-html-daily", async () => {
+  //   await spawnRun({
+  //     source:       "jobright",
+  //     postedWithin: "ONE",
+  //     max:          50,
+  //     runId:        newRunId(),
+  //     lockTtlSecs:  14_400,
+  //   });
+  // });
 
   // ── LinkedIn (daily, offset by 1h from Jobright) ─────────────────────────
   // LinkedIn does not support POSTED_WITHIN — JobSpy doesn't expose it
